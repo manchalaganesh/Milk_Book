@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-inter: 'Inter', sans-serif;
+
+  --color-background: hsl(210 20% 98%);
+  --color-foreground: hsl(220 20% 10%);
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(220 20% 10%);
+  --color-popover: hsl(0 0% 100%);
+  --color-popover-foreground: hsl(220 20% 10%);
+  --color-primary: hsl(213 94% 48%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-secondary: hsl(152 60% 46%);
+  --color-secondary-foreground: hsl(0 0% 100%);
+  --color-muted: hsl(210 14% 93%);
+  --color-muted-foreground: hsl(220 10% 46%);
+  --color-accent: hsl(38 92% 55%);
+  --color-accent-foreground: hsl(0 0% 100%);
+  --color-destructive: hsl(0 72% 56%);
+  --color-destructive-foreground: hsl(0 0% 100%);
+  --color-border: hsl(214 20% 90%);
+  --color-input: hsl(214 20% 90%);
+  --color-ring: hsl(213 94% 48%);
+
+  --color-chart-1: hsl(213 94% 48%);
+  --color-chart-2: hsl(152 60% 46%);
+  --color-chart-3: hsl(38 92% 55%);
+  --color-chart-4: hsl(280 60% 55%);
+  --color-chart-5: hsl(0 72% 56%);
+
+  --color-sidebar: hsl(0 0% 100%);
+  --color-sidebar-foreground: hsl(220 20% 10%);
+  --color-sidebar-primary: hsl(213 94% 48%);
+  --color-sidebar-primary-foreground: hsl(0 0% 100%);
+  --color-sidebar-accent: hsl(210 14% 96%);
+  --color-sidebar-accent-foreground: hsl(220 20% 10%);
+  --color-sidebar-border: hsl(214 20% 92%);
+  --color-sidebar-ring: hsl(213 94% 48%);
+
+  --radius-lg: 0.75rem;
+  --radius-md: calc(0.75rem - 2px);
+  --radius-sm: calc(0.75rem - 4px);
+  --radius: 0.75rem;
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
+  }
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
+  }
+}
+
+.dark {
+  --color-background: hsl(220 20% 7%);
+  --color-foreground: hsl(210 20% 96%);
+  --color-card: hsl(220 18% 11%);
+  --color-card-foreground: hsl(210 20% 96%);
+  --color-popover: hsl(220 18% 11%);
+  --color-popover-foreground: hsl(210 20% 96%);
+  --color-primary: hsl(213 94% 55%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-secondary: hsl(152 55% 50%);
+  --color-secondary-foreground: hsl(0 0% 100%);
+  --color-muted: hsl(220 14% 16%);
+  --color-muted-foreground: hsl(220 10% 55%);
+  --color-accent: hsl(38 88% 58%);
+  --color-accent-foreground: hsl(0 0% 100%);
+  --color-destructive: hsl(0 65% 48%);
+  --color-destructive-foreground: hsl(0 0% 100%);
+  --color-border: hsl(220 14% 18%);
+  --color-input: hsl(220 14% 18%);
+  --color-ring: hsl(213 94% 55%);
+
+  --color-sidebar: hsl(220 18% 11%);
+  --color-sidebar-foreground: hsl(210 20% 96%);
+  --color-sidebar-primary: hsl(213 94% 55%);
+  --color-sidebar-primary-foreground: hsl(0 0% 100%);
+  --color-sidebar-accent: hsl(220 14% 16%);
+  --color-sidebar-accent-foreground: hsl(210 20% 96%);
+  --color-sidebar-border: hsl(220 14% 18%);
+  --color-sidebar-ring: hsl(213 94% 55%);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-inter);
+  }
+
+  /* Remove native spinner arrows from number inputs */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+}
