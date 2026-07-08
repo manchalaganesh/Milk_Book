@@ -208,6 +208,27 @@ export default function Orders() {
                           Mark Delivered
                         </Button>
                       )}
+                      {order.payment_status !== 'paid' && (
+                        <Button
+                          size="sm"
+                          className="rounded-xl text-xs h-7 bg-primary hover:bg-primary/90"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            await base44.entities.SaleOrder.update(order.id, { payment_status: 'paid' });
+                            if (order.customer_id) {
+                              const customer = customers.find(c => c.id === order.customer_id);
+                              if (customer) {
+                                const newPending = Math.max(0, (customer.pending_amount || 0) - (order.final_amount || 0));
+                                await base44.entities.Customer.update(order.customer_id, { pending_amount: newPending });
+                              }
+                            }
+                            qc.invalidateQueries({ queryKey: ['sale-orders'] });
+                            qc.invalidateQueries({ queryKey: ['customers'] });
+                          }}
+                        >
+                          Mark Paid
+                        </Button>
+                      )}
                       <Button
                         size="sm"
                         variant="outline"
