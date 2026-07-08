@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Login({ onLoginSuccess }) {
   const { t, lang, setLang } = useI18n();
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [mode, setMode] = useState('signin'); // 'signin' | 'signup' | 'forgot' | 'recovery'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -18,23 +18,51 @@ export default function Login({ onLoginSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  useEffect(() => {
+    if (window.location.hash.includes('type=recovery')) {
+      setMode('recovery');
+    }
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password || (isSignUp && !fullName)) {
+    if (mode === 'signin' && (!email || !password)) {
       setError('Please fill in all required fields.');
       return;
     }
+    if (mode === 'signup' && (!email || !password || !fullName)) {
+      setError('Please fill in all required fields.');
+      return;
+    }
+    if (mode === 'forgot' && !email) {
+      setError('Please fill in your email address.');
+      return;
+    }
+    if (mode === 'recovery' && !password) {
+      setError('Please fill in your new password.');
+      return;
+    }
+
     setError('');
     setLoading(true);
 
     try {
-      if (isSignUp) {
+      if (mode === 'signup') {
         await base44.auth.signUp(email, password, fullName);
         setError('Signup successful! Check your email or try logging in.');
-        setIsSignUp(false);
-      } else {
+        setMode('signin');
+      } else if (mode === 'signin') {
         const loggedInUser = await base44.auth.login(email, password);
         onLoginSuccess(loggedInUser);
+      } else if (mode === 'forgot') {
+        await base44.auth.resetPassword(email);
+        setError('Password reset link sent! Check your email.');
+      } else if (mode === 'recovery') {
+        await base44.auth.updatePassword(password);
+        setError('Password updated successfully! You can now sign in.');
+        // Clean hash from URL
+        window.history.replaceState(null, null, ' ');
+        setMode('signin');
       }
     } catch (err) {
       console.error(err);
@@ -81,14 +109,17 @@ export default function Login({ onLoginSuccess }) {
               MilkBook
             </CardTitle>
             <CardDescription className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-              {isSignUp ? 'Create your manager account' : 'Sign in to manage your dairy business'}
+              {mode === 'signup' && 'Create your manager account'}
+              {mode === 'signin' && 'Sign in to manage your dairy business'}
+              {mode === 'forgot' && 'Enter your email to request a reset link'}
+              {mode === 'recovery' && 'Enter a new password for your account'}
             </CardDescription>
           </CardHeader>
 
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <AnimatePresence mode="wait">
-                {isSignUp && (
+                {mode === 'signup' && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
@@ -113,47 +144,67 @@ export default function Login({ onLoginSuccess }) {
                 )}
               </AnimatePresence>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="email">Email Address</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="name@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-9 rounded-xl border-slate-200 focus-visible:ring-indigo-500 bg-white/50"
-                    required
-                  />
+              {mode !== 'recovery' && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="email">Email Address</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="name@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="pl-9 rounded-xl border-slate-200 focus-visible:ring-indigo-500 bg-white/50"
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <div className="space-y-1.5">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-9 pr-10 rounded-xl border-slate-200 focus-visible:ring-indigo-500 bg-white/50"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
+              {mode !== 'forgot' && (
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center">
+                    <Label htmlFor="password">
+                      {mode === 'recovery' ? 'New Password' : 'Password'}
+                    </Label>
+                    {mode === 'signin' && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMode('forgot');
+                          setError('');
+                        }}
+                        className="text-xs text-indigo-600 hover:underline"
+                      >
+                        Forgot Password?
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pl-9 pr-10 rounded-xl border-slate-200 focus-visible:ring-indigo-500 bg-white/50"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {error && (
-                <div className={`p-3 rounded-xl text-xs font-medium ${error.includes('successful') ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}`}>
+                <div className={`p-3 rounded-xl text-xs font-medium ${error.includes('successful') || error.includes('sent') ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}`}>
                   {error}
                 </div>
               )}
@@ -165,8 +216,12 @@ export default function Login({ onLoginSuccess }) {
               >
                 {loading ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : isSignUp ? (
+                ) : mode === 'signup' ? (
                   'Create Account'
+                ) : mode === 'forgot' ? (
+                  'Send Reset Link'
+                ) : mode === 'recovery' ? (
+                  'Update Password'
                 ) : (
                   'Sign In'
                 )}
@@ -176,20 +231,49 @@ export default function Login({ onLoginSuccess }) {
 
           <CardFooter className="flex flex-col gap-4 pb-8 border-t border-slate-100 dark:border-slate-800/50 pt-6 bg-slate-50/50 dark:bg-slate-900/20">
             <div className="text-xs text-center text-slate-500">
-              {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsSignUp(!isSignUp);
-                  setError('');
-                }}
-                className="text-indigo-600 hover:underline font-semibold"
-              >
-                {isSignUp ? 'Sign In' : 'Sign Up'}
-              </button>
+              {mode === 'signin' && (
+                <>
+                  Don\'t have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode('signup');
+                      setError('');
+                    }}
+                    className="text-indigo-600 hover:underline font-semibold"
+                  >
+                    Sign Up
+                  </button>
+                </>
+              )}
+              {mode === 'signup' && (
+                <>
+                  Already have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode('signin');
+                      setError('');
+                    }}
+                    className="text-indigo-600 hover:underline font-semibold"
+                  >
+                    Sign In
+                  </button>
+                </>
+              )}
+              {(mode === 'forgot' || mode === 'recovery') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('signin');
+                    setError('');
+                  }}
+                  className="text-indigo-600 hover:underline font-semibold"
+                >
+                  Back to Sign In
+                </button>
+              )}
             </div>
-
-
           </CardFooter>
         </Card>
       </motion.div>

@@ -293,6 +293,20 @@ export const base44 = {
       await supabase.auth.signOut();
       window.location.reload();
     },
+    resetPassword: async (email) => {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin
+      });
+      if (error) throw error;
+      return true;
+    },
+    updatePassword: async (newPassword) => {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      if (error) throw error;
+      return true;
+    },
     redirectToLogin: () => {
       console.log('Redirect to login called.');
     }
