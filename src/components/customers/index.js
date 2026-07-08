@@ -1,2 +1,2 @@
 // Customer components (list, detail, form, etc.)
-export { default as CustomerCard } from './CustomerCard'
+export { default as CustomerFormDialog } from './CustomerFormDialog';

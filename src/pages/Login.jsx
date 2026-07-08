@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Milk, Lock, Mail, User, Eye, EyeOff, Sparkles, Database } from 'lucide-react';
+import { Milk, Lock, Mail, User, Eye, EyeOff, Sparkles } from 'lucide-react';
 import { useI18n } from '@/lib/i18n.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -44,11 +44,6 @@ export default function Login({ onLoginSuccess }) {
     }
   };
 
-  const handleGuestMode = () => {
-    localStorage.removeItem('logged_out');
-    // Reload the app to fetch the default fallback Admin User
-    window.location.reload();
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-50 via-slate-50 to-indigo-100 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 p-4 relative overflow-hidden">
@@ -194,24 +189,7 @@ export default function Login({ onLoginSuccess }) {
               </button>
             </div>
 
-            <div className="relative w-full flex items-center justify-center my-1">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-slate-200 dark:border-slate-800" />
-              </div>
-              <span className="relative px-3 bg-slate-50 dark:bg-slate-900/60 backdrop-blur-md text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                Or
-              </span>
-            </div>
 
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleGuestMode}
-              className="w-full rounded-xl border-dashed border-slate-300 dark:border-slate-700 hover:bg-slate-100/50 gap-2 font-medium text-xs py-5"
-            >
-              <Database className="w-3.5 h-3.5 text-slate-500" />
-              Continue as Guest / Local Admin
-            </Button>
           </CardFooter>
         </Card>
       </motion.div>

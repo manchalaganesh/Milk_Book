@@ -1,2 +1,2 @@
 // Payments components (payment list, receipt, form, etc.)
-export { default as PaymentBadge } from './PaymentBadge'
+export { default as PaymentFormDialog } from './PaymentFormDialog';

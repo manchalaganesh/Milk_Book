@@ -20,6 +20,16 @@ export default function Reports() {
     queryFn: () => base44.entities.MilkOrder.list('-date', 1000),
   });
 
+  const { data: saleOrders = [] } = useQuery({
+    queryKey: ['sale-orders'],
+    queryFn: () => base44.entities.SaleOrder.list('-date', 1000),
+  });
+
+  const { data: products = [] } = useQuery({
+    queryKey: ['products'],
+    queryFn: () => base44.entities.Product.list(),
+  });
+
   const { data: customers = [] } = useQuery({
     queryKey: ['customers'],
     queryFn: () => base44.entities.Customer.list(),
@@ -30,36 +40,83 @@ export default function Reports() {
     queryFn: () => base44.entities.Payment.list('-date', 1000),
   });
 
+  const periodStart = useMemo(() => {
+    const date = subMonths(new Date(), parseInt(period) - 1);
+    return format(startOfMonth(date), 'yyyy-MM-dd');
+  }, [period]);
+
   const monthlyData = useMemo(() => {
     const months = [];
     for (let i = parseInt(period) - 1; i >= 0; i--) {
       const date = subMonths(new Date(), i);
       const start = format(startOfMonth(date), 'yyyy-MM-dd');
       const end = format(endOfMonth(date), 'yyyy-MM-dd');
+      
       const monthOrders = orders.filter(o => o.date >= start && o.date <= end);
+      const monthSaleOrders = saleOrders.filter(so => so.date >= start && so.date <= end);
       const monthPayments = payments.filter(p => p.date >= start && p.date <= end);
+
+      // Direct sales liters calculation
+      let saleLiters = 0;
+      monthSaleOrders.forEach(so => {
+        (so.items || []).forEach(item => {
+          const prod = products.find(p => p.id === item.product_id);
+          if (prod && prod.category === 'milk') {
+            let multiplier = 1;
+            if (item.packet_type === '500ml') multiplier = 0.5;
+            else if (item.packet_type === '2_liter') multiplier = 2;
+            saleLiters += item.quantity * multiplier;
+          }
+        });
+      });
+
+      const milkSalesVal = monthOrders.reduce((s, o) => s + (o.total_price || 0), 0);
+      const productSalesVal = monthSaleOrders.reduce((s, o) => s + (o.final_amount || 0), 0);
+
       months.push({
         month: format(date, 'MMM yyyy'),
-        sales: monthOrders.reduce((s, o) => s + (o.total_price || 0), 0),
-        liters: monthOrders.reduce((s, o) => s + (o.quantity || 0), 0),
+        sales: milkSalesVal + productSalesVal,
+        liters: monthOrders.reduce((s, o) => s + (o.quantity || 0), 0) + saleLiters,
         collected: monthPayments.reduce((s, p) => s + (p.amount || 0), 0),
       });
     }
     return months;
-  }, [orders, payments, period]);
+  }, [orders, saleOrders, products, payments, period]);
 
   const milkTypeData = useMemo(() => {
     const types = {};
-    orders.forEach(o => {
+    
+    // Deliveries
+    orders.filter(o => o.date >= periodStart).forEach(o => {
       const type = o.milk_type || 'cow';
       types[type] = (types[type] || 0) + (o.quantity || 0);
     });
-    return Object.entries(types).map(([name, value]) => ({ name: t(name), value: Math.round(value * 10) / 10 }));
-  }, [orders, t]);
 
-  const totalSales = orders.reduce((s, o) => s + (o.total_price || 0), 0);
-  const totalCollected = payments.reduce((s, p) => s + (p.amount || 0), 0);
-  const totalLiters = orders.reduce((s, o) => s + (o.quantity || 0), 0);
+    // Direct sales
+    saleOrders.filter(so => so.date >= periodStart).forEach(so => {
+      (so.items || []).forEach(item => {
+        const prod = products.find(p => p.id === item.product_id);
+        if (prod && prod.category === 'milk') {
+          const nameLower = prod.name.toLowerCase();
+          let type = 'mixed';
+          if (nameLower.includes('cow')) type = 'cow';
+          else if (nameLower.includes('buffalo')) type = 'buffalo';
+          
+          let multiplier = 1;
+          if (item.packet_type === '500ml') multiplier = 0.5;
+          else if (item.packet_type === '2_liter') multiplier = 2;
+          
+          types[type] = (types[type] || 0) + (item.quantity * multiplier);
+        }
+      });
+    });
+
+    return Object.entries(types).map(([name, value]) => ({ name: t(name), value: Math.round(value * 10) / 10 }));
+  }, [orders, saleOrders, products, periodStart, t]);
+
+  const totalSales = useMemo(() => monthlyData.reduce((sum, m) => sum + m.sales, 0), [monthlyData]);
+  const totalCollected = useMemo(() => monthlyData.reduce((sum, m) => sum + m.collected, 0), [monthlyData]);
+  const totalLiters = useMemo(() => monthlyData.reduce((sum, m) => sum + m.liters, 0), [monthlyData]);
 
   const downloadCSV = () => {
     const headers = ['Month', 'Sales (₹)', 'Liters', 'Collected (₹)'];

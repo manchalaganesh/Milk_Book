@@ -1,4 +1,15 @@
 // Shared UI primitives (Button, Input, Modal, Badge, etc.)
-export { default as Button } from './Button'
-export { default as Badge } from './Badge'
-export { default as Modal } from './Modal'
+export { Button, buttonVariants } from './button';
+export { Badge, badgeVariants } from './badge';
+export {
+  Dialog,
+  DialogPortal,
+  DialogOverlay,
+  DialogTrigger,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from './dialog';

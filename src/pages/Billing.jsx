@@ -46,7 +46,7 @@ export default function Billing() {
     },
   });
 
-  const activeProducts = products.filter(p => p.status === 'active' && p.stock > 0);
+  const activeProducts = products.filter(p => p.status === 'active');
   const filteredProducts = activeProducts.filter(p =>
     !productSearch || p.name?.toLowerCase().includes(productSearch.toLowerCase())
   );
@@ -171,6 +171,11 @@ export default function Billing() {
                       <p className="font-medium text-sm text-foreground truncate">{product.name}</p>
                       <p className="text-xs text-muted-foreground">{packetLabel[product.packet_type] || product.packet_type}</p>
                       <p className="text-sm font-bold text-primary mt-1">₹{product.price}</p>
+                      {product.stock <= 0 ? (
+                        <span className="text-[10px] text-destructive font-semibold block mt-1">Out of Stock</span>
+                      ) : (
+                        <span className="text-[10px] text-muted-foreground block mt-1">Stock: {product.stock}</span>
+                      )}
                       <span className={`absolute top-2 right-2 text-xs px-1.5 py-0.5 rounded-full ${categoryColors[product.category] || 'bg-muted'}`}>
                         {t(product.category)}
                       </span>

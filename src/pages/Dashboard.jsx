@@ -43,9 +43,10 @@ export default function Dashboard() {
   const activeCustomers = customers.filter(c => c.status === 'active');
   const todayOrders = allOrders.filter(o => o.date === today);
   const monthOrders = allOrders.filter(o => o.date >= monthStart);
+  const monthSaleOrders = saleOrders.filter(o => o.date >= monthStart);
 
-  const totalLiters = monthOrders.reduce((sum, o) => sum + (o.quantity || 0), 0);
-  const totalSales = monthOrders.reduce((sum, o) => sum + (o.total_price || 0), 0);
+  const totalSales = monthOrders.reduce((sum, o) => sum + (o.total_price || 0), 0) +
+                     monthSaleOrders.reduce((sum, o) => sum + (o.final_amount || 0), 0);
   const totalPending = customers.reduce((sum, c) => sum + (c.pending_amount || 0), 0);
   const todayIncome = todayOrders.filter(o => o.delivery_status === 'delivered').reduce((sum, o) => sum + (o.total_price || 0), 0);
 
