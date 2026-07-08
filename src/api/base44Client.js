@@ -25,8 +25,9 @@ async function getCurrentUserId() {
   return '00000000-0000-0000-0000-000000000000'; // fallback mock admin UUID
 }
 
-// Auto-seeding helpers (isolated per user)
+// Auto-seeding helpers (only run for local guest admin)
 async function checkAndSeedCustomers(userId) {
+  if (userId !== '00000000-0000-0000-0000-000000000000') return;
   try {
     if (!userId) return;
     const { count, error } = await supabase
@@ -49,6 +50,7 @@ async function checkAndSeedCustomers(userId) {
 }
 
 async function checkAndSeedProducts(userId) {
+  if (userId !== '00000000-0000-0000-0000-000000000000') return;
   try {
     if (!userId) return;
     const { count, error } = await supabase
@@ -74,6 +76,7 @@ async function checkAndSeedProducts(userId) {
 }
 
 async function checkAndSeedMilkOrders(userId) {
+  if (userId !== '00000000-0000-0000-0000-000000000000') return;
   try {
     if (!userId) return;
     const { count, error: countError } = await supabase
