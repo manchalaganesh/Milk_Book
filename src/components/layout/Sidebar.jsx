@@ -30,13 +30,15 @@ export default function Sidebar({ open, onClose }) {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="flex items-center gap-3 px-6 py-6 border-b border-border">
-        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-          <Milk className="w-5 h-5 text-primary-foreground" />
-        </div>
-        <div>
-          <h1 className="font-bold text-lg text-foreground tracking-tight">MilkBook</h1>
-          <p className="text-xs text-muted-foreground">{lang === 'te' ? 'పాల వ్యాపారం' : 'Dairy Manager'}</p>
-        </div>
+        <Link to="/" onClick={onClose} className="flex items-center gap-3 hover:opacity-85 transition-opacity">
+          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+            <Milk className="w-5 h-5 text-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="font-bold text-lg text-foreground tracking-tight">MilkBook</h1>
+            <p className="text-xs text-muted-foreground">{lang === 'te' ? 'పాల వ్యాపారం' : 'Dairy Manager'}</p>
+          </div>
+        </Link>
         <button onClick={onClose} className="ml-auto lg:hidden p-1 rounded-lg hover:bg-muted">
           <X className="w-5 h-5" />
         </button>

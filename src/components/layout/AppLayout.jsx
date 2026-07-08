@@ -4,15 +4,36 @@ import Sidebar from './Sidebar';
 import { Menu } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useI18n } from '@/lib/i18n.jsx';
+import Login from '@/pages/Login';
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const { t } = useI18n();
 
   useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => { });
+    base44.auth.me()
+      .then((u) => {
+        setUser(u);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
   }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-8 h-8 border-4 border-slate-200 border-t-primary rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Login onLoginSuccess={setUser} />;
+  }
 
   return (
     <div className="min-h-screen bg-background">
