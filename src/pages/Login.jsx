@@ -102,8 +102,8 @@ export default function Login({ onLoginSuccess }) {
           <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500" />
           
           <CardHeader className="pt-8 text-center">
-            <div className="mx-auto w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 mb-4">
-              <Milk className="w-6 h-6 text-white" />
+            <div className="mx-auto w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center mb-4 shadow-lg shadow-indigo-500/10">
+              <img src="https://res.cloudinary.com/doxeuimhd/image/upload/v1783510673/ChatGPT_Image_Jul_8_2026_04_58_53_PM_axzmx1.png" alt="MilkBook Logo" className="w-full h-full object-cover" />
             </div>
             <CardTitle className="text-2xl font-bold tracking-tight bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 dark:from-white dark:via-indigo-200 dark:to-white bg-clip-text text-transparent">
               MilkBook
