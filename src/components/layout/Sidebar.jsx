@@ -1,8 +1,9 @@
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n.jsx';
 import {
   LayoutDashboard, Users, ClipboardList, CreditCard,
-  BarChart3, X, Milk, LogOut, Globe, Package, Receipt
+  BarChart3, X, Milk, LogOut, Globe, Package, Receipt, Download
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,38 @@ const navItems = [
 export default function Sidebar({ open, onClose }) {
   const { t, lang, setLang } = useI18n();
   const location = useLocation();
+
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isInstallable, setIsInstallable] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
+
+  useEffect(() => {
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+      setIsStandalone(true);
+    }
+
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsInstallable(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+      setIsInstallable(false);
+    }
+  };
 
   const handleLogout = () => {
     base44.auth.logout();
@@ -68,6 +101,15 @@ export default function Sidebar({ open, onClose }) {
 
       {/* Footer */}
       <div className="px-3 py-4 border-t border-border space-y-2">
+        {isInstallable && !isStandalone && (
+          <button
+            onClick={handleInstallClick}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0 w-full transition-all duration-200 cursor-pointer"
+          >
+            <Download className="w-5 h-5 animate-pulse" />
+            <span>Install Web App</span>
+          </button>
+        )}
         <button
           onClick={() => setLang(lang === 'en' ? 'te' : 'en')}
           className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground w-full transition-all"
@@ -83,6 +125,7 @@ export default function Sidebar({ open, onClose }) {
           <span>{t('logout')}</span>
         </button>
       </div>
+
     </div>
   );
 

@@ -1,0 +1,36 @@
+{
+  "name": "MilkBook Dairy",
+  "short_name": "MilkBook",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "description": "MilkBook Dairy Management and Billing Application",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://res.cloudinary.com/doxeuimhd/image/upload/w_192,h_192,c_scale/v1783510673/ChatGPT_Image_Jul_8_2026_04_58_53_PM_axzmx1.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://res.cloudinary.com/doxeuimhd/image/upload/w_192,h_192,c_scale/v1783510673/ChatGPT_Image_Jul_8_2026_04_58_53_PM_axzmx1.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "https://res.cloudinary.com/doxeuimhd/image/upload/w_512,h_512,c_scale/v1783510673/ChatGPT_Image_Jul_8_2026_04_58_53_PM_axzmx1.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://res.cloudinary.com/doxeuimhd/image/upload/w_512,h_512,c_scale/v1783510673/ChatGPT_Image_Jul_8_2026_04_58_53_PM_axzmx1.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
