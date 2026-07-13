@@ -6,7 +6,7 @@ import { Copy, Check, Printer, Send, MessageSquare, Share2 } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast';
 import { useI18n } from '@/lib/i18n.jsx';
 
-export function getInvoiceText(order) {
+function getInvoiceText(order) {
   if (!order) return '';
 
   const paymentMethodLabel = {
