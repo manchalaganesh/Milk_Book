@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import BillCart from '@/components/billing/BillCart';
 import OrderHistoryTable from '@/components/billing/OrderHistoryTable';
+import InvoiceShareDialog from '@/components/billing/InvoiceShareDialog';
 
 export default function Billing() {
   const { t } = useI18n();
@@ -23,6 +24,7 @@ export default function Billing() {
   const [discount, setDiscount] = useState(0);
   const [productSearch, setProductSearch] = useState('');
   const [activeTab, setActiveTab] = useState('new'); // 'new' | 'history'
+  const [lastCreatedOrder, setLastCreatedOrder] = useState(null);
 
   const { data: products = [] } = useQuery({
     queryKey: ['products'],
@@ -36,13 +38,14 @@ export default function Billing() {
 
   const createOrderMutation = useMutation({
     mutationFn: (data) => base44.entities.SaleOrder.create(data),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['sale-orders'] });
       queryClient.invalidateQueries({ queryKey: ['products'] });
       setCart([]);
       setCustomerName('');
       setCustomerPhone('');
       setDiscount(0);
+      setLastCreatedOrder(data);
     },
   });
 
@@ -215,6 +218,11 @@ export default function Billing() {
           </div>
         </div>
       )}
+      <InvoiceShareDialog
+        order={lastCreatedOrder}
+        open={!!lastCreatedOrder}
+        onOpenChange={(open) => !open && setLastCreatedOrder(null)}
+      />
     </div>
   );
 }

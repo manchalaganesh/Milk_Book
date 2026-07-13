@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { I18nProvider } from '@/lib/i18n.jsx'
+import { Toaster } from '@/components/ui/toaster'
 import AppLayout from '@/components/layout/AppLayout'
 import Dashboard from '@/pages/Dashboard'
 import Customers from '@/pages/Customers'
@@ -37,6 +38,7 @@ export default function App() {
             </Route>
           </Routes>
         </BrowserRouter>
+        <Toaster />
       </I18nProvider>
     </QueryClientProvider>
   )

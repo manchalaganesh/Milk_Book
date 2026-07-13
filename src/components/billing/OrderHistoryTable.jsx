@@ -3,13 +3,15 @@ import { useI18n } from '@/lib/i18n.jsx';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, ChevronDown, ChevronUp, Share2 } from 'lucide-react';
 import { format } from 'date-fns';
+import InvoiceShareDialog from './InvoiceShareDialog';
 
 export default function OrderHistoryTable({ orders }) {
   const { t } = useI18n();
   const [search, setSearch] = useState('');
   const [expanded, setExpanded] = useState(null);
+  const [selectedShareOrder, setSelectedShareOrder] = useState(null);
 
   const filtered = orders.filter(o =>
     !search || o.customer_name?.toLowerCase().includes(search.toLowerCase())
@@ -86,11 +88,31 @@ export default function OrderHistoryTable({ orders }) {
                 <div className="flex justify-between font-bold text-sm mt-1">
                   <span>Final Amount</span><span className="text-primary">₹{order.final_amount}</span>
                 </div>
+                <div className="flex justify-end mt-4 pt-2 border-t border-border/50">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="rounded-xl gap-1.5 text-xs font-semibold border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedShareOrder(order);
+                    }}
+                  >
+                    <Share2 className="w-3.5 h-3.5" />
+                    Share / Print Invoice
+                  </Button>
+                </div>
               </div>
             )}
+
           </div>
         ))}
       </div>
+      <InvoiceShareDialog
+        order={selectedShareOrder}
+        open={!!selectedShareOrder}
+        onOpenChange={(open) => !open && setSelectedShareOrder(null)}
+      />
     </div>
   );
 }
